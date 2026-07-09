@@ -52,27 +52,20 @@ st.markdown("---")
 col1, col2 = st.columns([1, 1.2])  # Adjusted column widths for chart space
 
 with col1:
-    st.subheader("🔮 Predictive Analytics Engine")
+        # Calculate estimation
     input_data = np.array([[experience]])
     prediction = model.predict(input_data)
     
-        # Change prediction to prediction[0]
+    # Extract the single float number out of the array safely using [0][0] or [0]
+    final_salary = float(prediction[0])
+    
+    # Elegant metric display card
     st.metric(
         label="Estimated Market Value (Annual)",
-        value=f"${prediction[0]:,.2f}",
-        delta=f"+{experience} Years Exp." if experience > 0 else "Entry Level"
+        value=f"${final_salary:,.2f}",
+        delta=f"+{experience} Years Exp." if experience > 0 else "Entry Level Base"
     )
 
-    )
-    
-    if experience < 2:
-        st.info("💡 Profile tier: **Junior Level**.")
-    elif experience < 7:
-        st.warning("💡 Profile tier: **Mid-Senior Level**.")
-    else:
-        st.success("💡 Profile tier: **Principal/Lead Level**.")
-        
-    st.markdown("---")
     st.subheader("📋 Dataset Blueprint")
     if df is not None:
         st.dataframe(df, height=200, use_container_width=True)
