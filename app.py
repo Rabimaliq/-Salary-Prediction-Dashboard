@@ -56,10 +56,13 @@ with col1:
     input_data = np.array([[experience]])
     prediction = model.predict(input_data)
     
+        # Change prediction to prediction[0]
     st.metric(
         label="Estimated Market Value (Annual)",
-        value=f"${prediction:,.2f}",
+        value=f"${prediction[0]:,.2f}",
         delta=f"+{experience} Years Exp." if experience > 0 else "Entry Level"
+    )
+
     )
     
     if experience < 2:
