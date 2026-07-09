@@ -58,7 +58,7 @@ with col1:
     prediction = model.predict(input_data)
     
     # Extract raw float cleanly
-    final_salary = float(prediction[0])
+    final_salary = float(prediction)
     
     st.metric(
         label="Estimated Market Value (Annual)",
@@ -72,18 +72,13 @@ with col1:
         st.warning("💡 Profile tier: **Mid-Senior Level**.")
     else:
         st.success("💡 Profile tier: **Principal/Lead Level**.")
-        
-    st.markdown("---")
-    st.subheader("📋 Dataset Blueprint")
-    if df is not None:
-        st.dataframe(df, height=200, use_container_width=True)
 
 with col2:
     st.subheader("📈 Model Regression Line")
     if df is not None:
         fig, ax = plt.subplots(figsize=(6, 4))
         
-        # FIX: Select columns by numeric position index (0 and 1) to prevent column name errors
+        # Select columns by numeric position index (0 and 1)
         x_data = df.iloc[:, 0]
         y_data = df.iloc[:, 1]
         
@@ -105,4 +100,4 @@ with col2:
         
         st.pyplot(fig)
     else:
-        st.info("Data files not found. Verify your CSV dataset is inside your repository.")
+        st.info("Data files not found for trendline visualization.")
