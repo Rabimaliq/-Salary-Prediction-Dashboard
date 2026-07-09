@@ -57,8 +57,11 @@ with col1:
     input_data = np.array([[experience]])
     prediction = model.predict(input_data)
     
-    # Extract raw float cleanly
-    final_salary = float(prediction)
+    # FIX: Use .item() or .ravel() to extract the scalar number safely from any shape of array (1D or 2D)
+    if hasattr(prediction, "item"):
+        final_salary = float(prediction.item())
+    else:
+        final_salary = float(np.array(prediction).ravel()[0])
     
     st.metric(
         label="Estimated Market Value (Annual)",
@@ -85,10 +88,12 @@ with col2:
         # Plot actual data points
         ax.scatter(x_data, y_data, color='#FF4B4B', label='Actual Data', alpha=0.7)
         
-        # Generate the trendline
+        # Generate the trendline safely
         x_line = np.linspace(0, 20, 100).reshape(-1, 1)
         y_line = model.predict(x_line)
-        ax.plot(x_line, y_line, color='#1F77B4', linewidth=2, label='Regression Line')
+        
+        # Ensure trendline shapes match plotting assumptions perfectly
+        ax.plot(x_line, np.array(y_line).ravel(), color='#1F77B4', linewidth=2, label='Regression Line')
         
         # Mark user slider selection point
         ax.scatter([experience], [final_salary], color='black', s=100, zorder=5, label='Your Selection')
