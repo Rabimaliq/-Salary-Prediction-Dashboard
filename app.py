@@ -2,7 +2,6 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # Set page configurations
 st.set_page_config(
@@ -23,29 +22,6 @@ except FileNotFoundError:
     st.error("Error: 'model.pkl' not found.")
     st.stop()
 
-# Load historical data for visualization
-@st.cache_data
-def load_data():
-    try:
-        return pd.read_csv('Employers_data.csv')
-    except FileNotFoundError:
-        try:
-            return pd.read_csv('Salary_Data.csv')
-        except FileNotFoundError:
-            return None
-
-df = load_data()
-
-# --- SIDEBAR INPUTS ---
-st.sidebar.header("🔧 Configuration Panel")
-experience = st.sidebar.slider(
-    "Years of Experience:",
-    min_value=0.0,
-    max_value=20.0,
-    value=5.0,
-    step=0.5
-)
-
 # --- MAIN PAGE ---
 st.title("💼 Salary Prediction Analytics Dashboard")
 st.markdown("---")
@@ -53,56 +29,54 @@ st.markdown("---")
 col1, col2 = st.columns([1, 1.2])
 
 with col1:
-    st.subheader("🔮 Predictive Analytics Engine")
-    input_data = np.array([[experience]])
+    # ADDED: Your clean text-based numeric model input interface block
+    st.subheader("Model Inputs")
+    exp_input = st.number_input(
+        "Years of Experience:",
+        min_value=0.0,
+        max_value=50.0,
+        value=5.0,
+        step=0.5
+    )
+    
+    st.markdown("---")
+    
+    # Calculate estimation using your new 'exp_input' variable name
+    input_data = np.array([[exp_input]])
     prediction = model.predict(input_data)
     
-    # FIX: Use .item() or .ravel() to extract the scalar number safely from any shape of array (1D or 2D)
+    # Extract raw float cleanly
     if hasattr(prediction, "item"):
         final_salary = float(prediction.item())
     else:
-        final_salary = float(np.array(prediction).ravel()[0])
+        final_salary = float(np.array(prediction).ravel())
     
     st.metric(
         label="Estimated Market Value (Annual)",
         value=f"${final_salary:,.2f}",
-        delta=f"+{experience} Years Exp." if experience > 0 else "Entry Level Base"
+        delta=f"+{exp_input} Years Exp." if exp_input > 0 else "Entry Level Base"
     )
     
-    if experience < 2:
+    if exp_input < 2:
         st.info("💡 Profile tier: **Junior Level**.")
-    elif experience < 7:
+    elif exp_input < 7:
         st.warning("💡 Profile tier: **Mid-Senior Level**.")
     else:
         st.success("💡 Profile tier: **Principal/Lead Level**.")
 
 with col2:
     st.subheader("📈 Model Regression Line")
-    if df is not None:
-        fig, ax = plt.subplots(figsize=(6, 4))
-        
-        # Select columns by numeric position index (0 and 1)
-        x_data = df.iloc[:, 0]
-        y_data = df.iloc[:, 1]
-        
-        # Plot actual data points
-        ax.scatter(x_data, y_data, color='#FF4B4B', label='Actual Data', alpha=0.7)
-        
-        # Generate the trendline safely
-        x_line = np.linspace(0, 20, 100).reshape(-1, 1)
-        y_line = model.predict(x_line)
-        
-        # Ensure trendline shapes match plotting assumptions perfectly
-        ax.plot(x_line, np.array(y_line).ravel(), color='#1F77B4', linewidth=2, label='Regression Line')
-        
-        # Mark user slider selection point
-        ax.scatter([experience], [final_salary], color='black', s=100, zorder=5, label='Your Selection')
-        
-        ax.set_xlabel('Years of Experience')
-        ax.set_ylabel('Salary')
-        ax.legend()
-        ax.grid(True, linestyle='--', alpha=0.5)
-        
-        st.pyplot(fig)
-    else:
-        st.info("Data files not found for trendline visualization.")
+    
+    # Generate the prediction trendline values dynamically from the model
+    x_range = np.linspace(0, 50, 101)  # Expanded to 50 to match your input ceiling boundary
+    predictions = [float(model.predict(np.array([[x]])).item()) for x in x_range]
+    
+    # Structure the line chart DataFrame
+    chart_df = pd.DataFrame({
+        "Years of Experience": x_range,
+        "Predicted Salary ($)": predictions
+    }).set_index("Years of Experience")
+    
+    # Render interactive line graph onto the dashboard canvas
+    st.line_chart(chart_df, color="#1F77B4", use_container_width=True)
+    st.caption("The trendline tracks your machine learning model's path across 0-50 years of experience.")
