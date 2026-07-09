@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Set page configurations
 st.set_page_config(
@@ -49,23 +50,30 @@ experience = st.sidebar.slider(
 st.title("💼 Salary Prediction Analytics Dashboard")
 st.markdown("---")
 
-col1, col2 = st.columns([1, 1.2])  # Adjusted column widths for chart space
+col1, col2 = st.columns([1, 1.2])
 
 with col1:
-        # Calculate estimation
+    st.subheader("🔮 Predictive Analytics Engine")
     input_data = np.array([[experience]])
     prediction = model.predict(input_data)
     
-    # Extract the single float number out of the array safely using [0][0] or [0]
+    # Extract raw float cleanly
     final_salary = float(prediction[0])
     
-    # Elegant metric display card
     st.metric(
         label="Estimated Market Value (Annual)",
         value=f"${final_salary:,.2f}",
         delta=f"+{experience} Years Exp." if experience > 0 else "Entry Level Base"
     )
-
+    
+    if experience < 2:
+        st.info("💡 Profile tier: **Junior Level**.")
+    elif experience < 7:
+        st.warning("💡 Profile tier: **Mid-Senior Level**.")
+    else:
+        st.success("💡 Profile tier: **Principal/Lead Level**.")
+        
+    st.markdown("---")
     st.subheader("📋 Dataset Blueprint")
     if df is not None:
         st.dataframe(df, height=200, use_container_width=True)
@@ -73,17 +81,28 @@ with col1:
 with col2:
     st.subheader("📈 Model Regression Line")
     if df is not None:
-        # Create standard regression line data points
+        fig, ax = plt.subplots(figsize=(6, 4))
+        
+        # FIX: Select columns by numeric position index (0 and 1) to prevent column name errors
+        x_data = df.iloc[:, 0]
+        y_data = df.iloc[:, 1]
+        
+        # Plot actual data points
+        ax.scatter(x_data, y_data, color='#FF4B4B', label='Actual Data', alpha=0.7)
+        
+        # Generate the trendline
         x_line = np.linspace(0, 20, 100).reshape(-1, 1)
         y_line = model.predict(x_line)
-        line_df = pd.DataFrame({'YearsExperience': x_line.flatten(), 'PredictedSalary': y_line})
+        ax.plot(x_line, y_line, color='#1F77B4', linewidth=2, label='Regression Line')
         
-        # Combine actual dataset points and the line for clean plotting
-        chart_data = df.copy()
-        chart_data.columns = ['YearsExperience', 'ActualSalary']
+        # Mark user slider selection point
+        ax.scatter([experience], [final_salary], color='black', s=100, zorder=5, label='Your Selection')
         
-        # Plot utilizing built-in responsive line charts
-        st.line_chart(line_df.set_index('YearsExperience'), y='PredictedSalary', use_container_width=True)
-        st.caption("The continuous line tracks your model's prediction trajectory across 0-20 years of experience.")
+        ax.set_xlabel('Years of Experience')
+        ax.set_ylabel('Salary')
+        ax.legend()
+        ax.grid(True, linestyle='--', alpha=0.5)
+        
+        st.pyplot(fig)
     else:
-        st.info("Upload dataset files to view regression modeling graphs.")
+        st.info("Data files not found. Verify your CSV dataset is inside your repository.")
