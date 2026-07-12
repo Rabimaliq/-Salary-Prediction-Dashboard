@@ -14,7 +14,8 @@ def load_model():
     current_dir = os.path.dirname(__file__)
     model_path = os.path.join(current_dir, 'diabetes_model.pkl') 
     return joblib.load(model_path)
-
+st.write("Current Directory:", os.getcwd())
+st.write("Files in directory:", os.listdir("."))
 model = load_model()
 
 # 3. Form Layout for Inputs
