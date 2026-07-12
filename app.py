@@ -79,4 +79,14 @@ with col2:
     
     # Render interactive line graph onto the dashboard canvas
     st.line_chart(chart_df, color="#1F77B4", use_container_width=True)
-    st.caption("The trendline tracks your machine learning model's path across 0-50 years of experience.")
+    st.caption("The trendline tracks machine learning model's path across 0-50 years of experience.")
+
+# 5. Visual Footer Credit
+st.markdown("---")  # Adds a clean horizontal divider line
+st.markdown(
+    """
+    <div style="text-align: center; color: #7f8c8d; font-size: 14px; padding-top: 10px;">
+        Created by: <strong>Rabimalik</strong>
+    </div>
+    """,
+    unsafe_allow_html=True
