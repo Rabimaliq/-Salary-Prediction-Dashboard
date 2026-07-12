@@ -11,8 +11,8 @@ st.write("Enter the patient's clinical metrics below to evaluate risk using the 
 # 2. Safely locate and load the model file using an absolute path
 @st.cache_resource
 def load_model():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(BASE_DIR, 'diabetes_model.pkl')
+    current_dir = os.path.dirname(__file__)
+    model_path = os.path.join(current_dir, 'diabetes_model.pkl') 
     return joblib.load(model_path)
 
 model = load_model()
