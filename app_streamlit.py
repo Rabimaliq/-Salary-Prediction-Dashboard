@@ -12,7 +12,7 @@ st.write("Enter the patient's clinical metrics below to evaluate risk using the 
 @st.cache_resource
 def load_model():
     current_dir = os.path.dirname(__file__)
-    model_path = os.path.join(current_dir, 'diabetes_model.pkl') 
+    model_path = os.path.join(current_dir, 'model.pkl') 
     return joblib.load(model_path)
 st.write("Current Directory:", os.getcwd())
 st.write("Files in directory:", os.listdir("."))
